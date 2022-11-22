@@ -85,3 +85,9 @@ func TestRedisGet(t *testing.T) {
 		fmt.Printf("值为: %v\n", val2)
 	}
 }
+
+func TestQueryPwd(t *testing.T) {
+	fmt.Println(QueryUserPwd("919897089@qq.com"))
+	fmt.Println(QueryUserInfo("919897089@qq.com"))
+	fmt.Println(QueryUserPwd("9198979@qq.com"))
+}

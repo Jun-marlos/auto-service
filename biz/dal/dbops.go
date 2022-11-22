@@ -3,6 +3,7 @@ package dal
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
@@ -35,4 +36,26 @@ func init() {
 	}
 	fmt.Println("connect mysql-db successfully")
 
+}
+
+func QueryUserPwd(email string) string {
+	var pwd string
+	db.Table("users").Select("pwd").Where("email = ?", email).Find(&pwd)
+	return pwd
+}
+
+func QueryUserInfo(email string) (string, int64) {
+	var uname string
+	var uid int64
+	db.Table("users").Select("uname").Where("email = ?", email).Find(&uname)
+	db.Table("users").Select("uid").Where("email = ?", email).Find(&uid)
+	return uname, uid
+}
+
+func RedisAdd(ctx context.Context, key, value string) int {
+	err := rdb.Set(ctx, key, value, time.Hour*24).Err()
+	if err != nil {
+		return 301
+	}
+	return 0
 }
