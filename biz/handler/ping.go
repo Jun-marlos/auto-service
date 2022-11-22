@@ -15,3 +15,21 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 		"message": "pong",
 	})
 }
+func Login(ctx context.Context, c *app.RequestContext) {
+
+}
+func Logout(ctx context.Context, c *app.RequestContext) {
+
+}
+func ChangePwd(ctx context.Context, c *app.RequestContext) {
+
+}
+func ChangeEmail(ctx context.Context, c *app.RequestContext) {
+
+}
+func AhrRegister(ctx context.Context, c *app.RequestContext) {
+
+}
+func SendVerifyCode(ctx context.Context, c *app.RequestContext) {
+
+}

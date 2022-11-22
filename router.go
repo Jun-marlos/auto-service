@@ -11,5 +11,12 @@ import (
 func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
 
-	// your code ...
+	// 登录登出改密换绑
+	r.POST("/login", handler.Login)
+	r.POST("/logout", handler.Logout)
+	r.POST("/change_password", handler.ChangePwd)
+	r.POST("/change_email", handler.ChangeEmail)
+
+	// 自动打卡注册
+	r.POST("/ahr_register", handler.AhrRegister)
 }
