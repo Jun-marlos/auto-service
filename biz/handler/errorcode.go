@@ -1,10 +1,14 @@
 package handler
 
 const (
-	SUCCESS   = 0
+	SUCCESS = 0
+
 	BAD_PARAM = 101
 
-	PWD_ERROR = 201
+	PWD_ERROR        = 201
+	VERIFY_ERROR     = 202
+	EMAIL_SEND_ERROR = 203
 
-	REDIS_ERROR = 301
+	SERVER_ERROR = 300
+	REDIS_ERROR  = 301
 )

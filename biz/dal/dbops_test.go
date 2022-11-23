@@ -91,3 +91,19 @@ func TestQueryPwd(t *testing.T) {
 	fmt.Println(QueryUserInfo("919897089@qq.com"))
 	fmt.Println(QueryUserPwd("9198979@qq.com"))
 }
+
+func TestRedis(t *testing.T) {
+	ctx := context.Background()
+	RedisAdd(ctx, "just-test", "test-answer", time.Hour*1)
+	ans, _ := RedisQuery(ctx, "just-test")
+	fmt.Println(ans)
+	RedisDelete(ctx, "just-test")
+	ans, _ = RedisQuery(ctx, "just-test")
+	fmt.Println(ans)
+}
+
+func TestVerifyCode(t *testing.T) {
+	ctx := context.Background()
+	RedisAdd(ctx, "[verify_code]abcdefg", "05488", time.Hour*1)
+	fmt.Println(CheckVerifyCode(ctx, "abcdefg", "05488"))
+}

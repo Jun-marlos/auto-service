@@ -5,8 +5,11 @@ package handler
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/cloudwego/goapi/biz/dal"
+	"github.com/cloudwego/goapi/biz/mail"
+	util "github.com/cloudwego/goapi/biz/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol"
@@ -20,7 +23,7 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 }
 func Login(ctx context.Context, c *app.RequestContext) {
 	IP := c.RemoteAddr().String()
-	IP = deletePort(IP)
+	IP = util.DeletePort(IP)
 	email := c.PostForm("email")
 	pwd := c.PostForm("pwd")
 	var uname, sessionId string
@@ -39,7 +42,21 @@ func Logout(ctx context.Context, c *app.RequestContext) {
 
 }
 func UserRegister(ctx context.Context, c *app.RequestContext) {
-
+	token := c.PostForm("token")
+	verify_code := c.PostForm("verify_code")
+	uname := c.PostForm("uname")
+	pwd := c.PostForm("pwd")
+	error_code := SUCCESS
+	if token == "" || verify_code == "" || uname == "" || pwd == "" {
+		error_code = BAD_PARAM
+	} else if !dal.CheckVerifyCode(ctx, token, verify_code) {
+		error_code = VERIFY_ERROR
+	} else if !dal.AddNewUser(ctx, token, verify_code, uname, pwd) {
+		error_code = SERVER_ERROR
+	}
+	c.JSON(200, utils.H{
+		"error_code": error_code,
+	})
 }
 func ChangePwd(ctx context.Context, c *app.RequestContext) {
 
@@ -50,7 +67,30 @@ func ChangeEmail(ctx context.Context, c *app.RequestContext) {
 func AhrRegister(ctx context.Context, c *app.RequestContext) {
 
 }
-func SendVerifyCode(ctx context.Context, c *app.RequestContext) {
+func EmailVerify(ctx context.Context, c *app.RequestContext) {
+	email := c.PostForm("email")
+	error_code := SUCCESS
+	token := ""
+	var err error
+	defer func() {
+		c.JSON(200, utils.H{
+			"token":      token,
+			"error_code": error_code,
+		})
+	}()
+	if email == "" {
+		error_code = BAD_PARAM
+		return
+	}
+	token, err = mail.SendVerifyCode(ctx, email)
+	if err != nil {
+		token = ""
+		error_code = EMAIL_SEND_ERROR
+		return
+	}
+	return
+}
+func SessionVerify(ctx context.Context, c *app.RequestContext) {
 
 }
 
@@ -67,9 +107,12 @@ func doRealLogin(ctx context.Context, email, pwd, IP string) (string, string, in
 }
 
 func makeSessionId(ctx context.Context, uid int64, IP string) (string, int) {
-	sessionId := RandomStringCreate()
+	sessionId := util.RandomStringCreate()
 	value := sessionId + IP
 	key := "[sessionId]" + strconv.FormatInt(uid, 10)
-	error_code := dal.RedisAdd(ctx, key, value)
-	return sessionId, error_code
+	err := dal.RedisAdd(ctx, key, value, time.Hour*12)
+	if err != nil {
+		return "", REDIS_ERROR
+	}
+	return sessionId, SUCCESS
 }

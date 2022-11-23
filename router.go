@@ -17,6 +17,10 @@ func customizedRegister(r *server.Hertz) {
 	r.POST("/change_password", handler.ChangePwd)
 	r.POST("/change_email", handler.ChangeEmail)
 
-	// 自动打卡注册
+	// 注册
+	r.POST("/user_register", handler.UserRegister)
 	r.POST("/ahr_register", handler.AhrRegister)
+
+	// 验证
+	r.POST("/mail_verify", handler.EmailVerify)
 }

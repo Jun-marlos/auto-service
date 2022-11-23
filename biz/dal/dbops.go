@@ -52,10 +52,47 @@ func QueryUserInfo(email string) (string, int64) {
 	return uname, uid
 }
 
-func RedisAdd(ctx context.Context, key, value string) int {
-	err := rdb.Set(ctx, key, value, time.Hour*24).Err()
-	if err != nil {
-		return 301
+func RedisAdd(ctx context.Context, key, value string, expiration time.Duration) error {
+	err := rdb.Set(ctx, key, value, expiration).Err()
+	return err
+}
+
+func RedisQuery(ctx context.Context, key string) (string, error) {
+	result := rdb.Get(ctx, key)
+	res := result.Val()
+	err := result.Err()
+	return res, err
+}
+
+func RedisDelete(ctx context.Context, key string) error {
+	err := rdb.Del(ctx, key).Err()
+	return err
+}
+
+func CheckVerifyCode(ctx context.Context, token, code string) bool {
+	token = "[verify_code]" + token
+	realcode, err := RedisQuery(ctx, token)
+	if err == nil && code == realcode {
+		RedisDelete(ctx, token)
+		return true
 	}
-	return 0
+	return false
+}
+
+func AddNewUser(ctx context.Context, token, code, uname, pwd string) bool {
+	token = "[token2email]" + token
+	email, err := RedisQuery(ctx, token)
+	if err != nil {
+		return false
+	}
+	newuser := User{
+		Uname: uname,
+		Pwd:   pwd,
+		Email: email,
+	}
+	result := db.Create(&newuser)
+	if result.Error != nil {
+		return false
+	}
+	return true
 }
