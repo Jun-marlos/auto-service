@@ -36,4 +36,5 @@ _testmain.go
 dumped_hertz_remote_config.json
 vendor/
 biz/dal/model.go
+biz/mail/config.go
 		  
