@@ -10,7 +10,7 @@ func TestMail(t *testing.T) {
 	// 邮件接收方
 	mailTo := []string{
 		//可以是多个接收人
-		"919897089@qq.com",
+		"********@qq.com",
 	}
 
 	subject := "Hello World!" // 邮件主题
@@ -26,6 +26,6 @@ func TestMail(t *testing.T) {
 
 func TestVerifyCode(t *testing.T) {
 	ctx := context.Background()
-	token, _ := SendVerifyCode(ctx, "919897089@qq.com")
+	token, _ := SendVerifyCode(ctx, "*******@qq.com")
 	fmt.Println(token)
 }

@@ -3,24 +3,56 @@
 package main
 
 import (
+	"context"
+	"fmt"
+
 	handler "github.com/cloudwego/goapi/biz/handler"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/cors"
 )
+
+func CheckLogin() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		ctxx, err := handler.SessionVerifyMiddleware(ctx, c)
+		if err != nil {
+			fmt.Println(err)
+			c.Abort()
+		}
+		ctx = ctxx
+		c.Next(ctx)
+	}
+}
 
 // customizeRegister registers customize routers.
 func customizedRegister(r *server.Hertz) {
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://txcloud.z-coding.cn"},
+		AllowCredentials: true,
+	}))
+
+	g1 := r.Group("/needlogin")
+
 	r.GET("/ping", handler.Ping)
+
+	g1.Use(CheckLogin())
 
 	// 登录登出改密换绑
 	r.POST("/login", handler.Login)
-	r.POST("/logout", handler.Logout)
-	r.POST("/change_password", handler.ChangePwd)
-	r.POST("/change_email", handler.ChangeEmail)
+	g1.GET("/logout", handler.Logout)
+	g1.POST("/change_password", handler.ChangePwd)
 
 	// 注册
 	r.POST("/user_register", handler.UserRegister)
-	r.POST("/ahr_register", handler.AhrRegister)
+	g1.POST("/ahr_register", handler.AhrRegister)
 
 	// 验证
 	r.POST("/mail_verify", handler.EmailVerify)
+	r.GET("/session_verify/", handler.SessionVerify)
+
+	//查询
+	g1.GET("/bind_stuid", handler.StuidQuery)
+	g1.GET("/report_once", handler.ReportOnce)
+	g1.GET("/remove_bind", handler.RemoveBind)
+	g1.GET("/query_ops", handler.GetLogs)
 }

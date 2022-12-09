@@ -13,14 +13,14 @@ const TIME_LAYOUT = "2006-01-02 15:04:05"
 
 func TestCreate(t *testing.T) {
 	testuser := User{
-		Uname: "zhaojun",
+		Uname: "*****",
 		Pwd:   "123456",
-		Email: "919897089@qq.com",
+		Email: "*******@qq.com",
 	}
 	testahr := Ahr{
 		Uid:        1,
-		StudentId:  "22920192204145",
-		StudentPwd: "zhao123456",
+		StudentId:  "******",
+		StudentPwd: "******",
 	}
 	testahr.LastSuccessDate, _ = time.Parse(TIME_LAYOUT, "2022-11-22 16:25:23")
 	testlog := Log{
@@ -87,9 +87,9 @@ func TestRedisGet(t *testing.T) {
 }
 
 func TestQueryPwd(t *testing.T) {
-	fmt.Println(QueryUserPwd("919897089@qq.com"))
-	fmt.Println(QueryUserInfo("919897089@qq.com"))
-	fmt.Println(QueryUserPwd("9198979@qq.com"))
+	fmt.Println(QueryUserPwd("*****@qq.com"))
+	fmt.Println(QueryUserInfo("*******@qq.com"))
+	fmt.Println(QueryUserPwd("*****@qq.com"))
 }
 
 func TestRedis(t *testing.T) {
@@ -106,4 +106,34 @@ func TestVerifyCode(t *testing.T) {
 	ctx := context.Background()
 	RedisAdd(ctx, "[verify_code]abcdefg", "05488", time.Hour*1)
 	fmt.Println(CheckVerifyCode(ctx, "abcdefg", "05488"))
+}
+
+func TestQueryNotExist(t *testing.T) {
+	a, b := QueryUserInfo("*******@qq.com")
+	fmt.Println(a, b)
+}
+
+func TestAddahr(t *testing.T) {
+	ctx := context.Background()
+	AddAhrUser(ctx, "2292019******", "zhaohhhhh", 8)
+}
+
+func TestConfig(t *testing.T) {
+	fmt.Println(GetConfig("encrept_key"))
+}
+
+func TestDeleteAhrbyUid(t *testing.T) {
+	DeleteAhrUser(8)
+}
+
+func TestGetAhrinfo(t *testing.T) {
+	fmt.Println(GetReportInfo("******"))
+}
+
+func TestWriteLog(t *testing.T) {
+	WriteLog(8, 11, "just for test")
+}
+
+func TestGetlog(t *testing.T) {
+	fmt.Println(QueryLogByUid(8))
 }
